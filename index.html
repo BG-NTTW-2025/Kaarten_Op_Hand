@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kaarten Hand</title>
+<style>
+  body {
+    background-color: #AAAaf7;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 10px;
+    text-align: center;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    justify-items: center;
+  }
+  .card {
+    position: relative;
+    text-align: center;
+    cursor: pointer;
+  }
+  .card img {
+    width: 75px;
+    height: 113px;
+    opacity: 0.7; /* standaard transparant */
+    transition: opacity 0.3s;
+    border-radius: 6px;
+    box-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+  }
+  .count {
+    font-weight: bold;
+    margin-top: 4px;
+    color: #000;
+  }
+  /* Grote weergave */
+  #overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 20px;
+  }
+  #overlay img {
+    width: 200px;
+    height: 300px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+  }
+  #overlay p {
+    background: white;
+    padding: 10px;
+    border-radius: 8px;
+    max-width: 90%;
+    text-align: left;
+  }
+</style>
+</head>
+<body>
+
+<h2>Jouw Handkaarten</h2>
+
+<div class="grid" id="cardGrid"></div>
+
+<!-- Overlay voor grote kaart en tekst -->
+<div id="overlay" onclick="closeOverlay()">
+  <img id="bigImage" src="">
+  <p id="bigDesc"></p>
+</div>
+
+<!-- Beschrijvingen -->
+<div id="descriptions" style="display: none;">
+  <p id="desc1">De Terp<br>Een permanente bescherming tegen het water...</p>
+  <p id="desc2">De Polder<br>Kwetsbare bescherming tegen het water...</p>
+  <p id="desc3">Het Windmolengemaal<br>Houdt de Polder droog...</p>
+  <p id="desc4">De Brug<br>Vaste verbinding over water...</p>
+  <p id="desc5">Boot van hout<br>Flexibele verplaatsing over water...</p>
+  <p id="desc6">Rubberboot<br>Beperkte verplaatsing over water...</p>
+  <p id="desc7">Lieslaarzen<br>Beperkte verplaatsing over water...</p>
+  <p id="desc8">Reddingsboei<br>Bescherming tegen verdrinking...</p>
+  <p id="desc9">Gevangen in Drijfzand<br>Sla twee beurten over...</p>
+  <p id="desc10">De Zeehond<br>Verslaat iedere speler zonder HRVDS kaart...</p>
+  <p id="desc11">De Orka<br>Verslaat de Zeehond...</p>
+  <p id="desc12">De Walvis<br>Verslaat Orka en Zeehond...</p>
+</div>
+
+<script>
+const grid = document.getElementById("cardGrid");
+const overlay = document.getElementById("overlay");
+const bigImage = document.getElementById("bigImage");
+const bigDesc = document.getElementById("bigDesc");
+
+// Maak 12 kaarten
+for (let i = 1; i <= 12; i++) {
+  const card = document.createElement("div");
+  card.className = "card";
+  card.dataset.index = i;
+  card.dataset.count = 0;
+
+  const img = document.createElement("img");
+  img.src = `thumb${i}.gif`;
+  img.style.opacity = 0.7; // begin altijd transparant
+
+  const count = document.createElement("div");
+  count.className = "count";
+  count.textContent = "0";
+
+  card.appendChild(img);
+  card.appendChild(count);
+  grid.appendChild(card);
+
+  let startX = 0;
+  let isDown = false;
+
+  // Touch events
+  card.addEventListener("touchstart", e => startX = e.touches[0].clientX);
+  card.addEventListener("touchend", e => {
+    let deltaX = e.changedTouches[0].clientX - startX;
+    handleSwipe(card, deltaX);
+  });
+
+  // Muis events (voor pc/laptop)
+  card.addEventListener("mousedown", e => {
+    startX = e.clientX;
+    isDown = true;
+  });
+  card.addEventListener("mouseup", e => {
+    if (isDown) {
+      let deltaX = e.clientX - startX;
+      handleSwipe(card, deltaX);
+      isDown = false;
+    }
+  });
+
+  // Dubbelklik om te vergroten
+  card.addEventListener("dblclick", () => {
+    if (parseInt(card.dataset.count) > 0) {
+      showOverlay(card.dataset.index);
+    }
+  });
+}
+
+function handleSwipe(card, deltaX) {
+  const threshold = 30; // min. afstand in px
+  let count = parseInt(card.dataset.count);
+  const img = card.querySelector("img");
+  const countDiv = card.querySelector(".count");
+
+  if (deltaX > threshold) { // swipe rechts
+    count++;
+  } else if (deltaX < -threshold) { // swipe links
+    count = Math.max(0, count - 1);
+  }
+
+  card.dataset.count = count;
+  countDiv.textContent = count;
+  img.style.opacity = count > 0 ? 1 : 0.7;
+}
+
+function showOverlay(index) {
+  bigImage.src = `thumb${index}.gif`;
+  bigDesc.innerHTML = document.getElementById("desc" + index).innerHTML;
+  overlay.style.display = "flex";
+}
+
+function closeOverlay() {
+  overlay.style.display = "none";
+}
+</script>
+
+</body>
+</html>
