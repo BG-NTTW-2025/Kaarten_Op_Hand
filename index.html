@@ -5,91 +5,135 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kaarten Hand</title>
 <style>
-  body {
-    background-color: #AAAaf7;
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 10px;
-    text-align: center;
-  }
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-    justify-items: center;
-  }
-  .card {
-    position: relative;
-    text-align: center;
-    cursor: pointer;
-  }
-  .card img {
-    width: 75px;
-    height: 113px;
-    opacity: 0.7; /* standaard transparant */
-    transition: opacity 0.3s;
-    border-radius: 6px;
-    box-shadow: 2px 2px 4px rgba(0,0,0,0.4);
-  }
-  .count {
-    font-weight: bold;
-    margin-top: 4px;
-    color: #000;
-  }
-  /* Grote weergave */
-  #overlay {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.6);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    padding: 20px;
-  }
-  #overlay img {
-    width: 200px;
-    height: 300px;
-    border-radius: 8px;
-    margin-bottom: 15px;
-  }
-  #overlay p {
-    background: white;
-    padding: 10px;
-    border-radius: 8px;
-    max-width: 90%;
-    text-align: left;
-  }
+body {
+  background-color: #AAAaf7;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 10px;
+  text-align: center;
+}
+h2 { margin-bottom: 15px; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, auto);
+  gap: 10px;
+  justify-content: center;
+  max-width: 380px;
+  margin: 0 auto 20px auto;
+}
+
+.card {
+  position: relative;
+  text-align: center;
+  cursor: pointer;
+}
+
+.card img {
+  width: 75px;
+  height: 113px;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+  border-radius: 6px;
+  box-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+  display: block;
+}
+
+.count {
+  font-weight: bold;
+  margin-top: 4px;
+  color: #000;
+}
+
+.buttons {
+  margin-top: 4px;
+}
+
+button {
+  padding: 2px 6px;
+  margin: 0 2px;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+#overlay {
+  position: fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background: rgba(0,0,0,0.6);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding:10px;
+  z-index:1000;
+}
+#overlay img {
+  width:200px; height:300px;
+  border-radius:8px;
+  margin-bottom:15px;
+}
+#overlay p {
+  background:white;
+  padding:10px;
+  border-radius:8px;
+  max-width:90vw;
+  overflow-wrap: break-word;
+  text-align:left;
+}
+
+@media(max-width:500px){
+  .grid { grid-template-columns: repeat(3, auto); max-width:240px; }
+  .card img { width:60px; height:90px; }
+}
+
+.instruction {
+  margin-top: 20px;
+  font-weight: bold;
+}
 </style>
 </head>
 <body>
 
 <h2>Jouw Handkaarten</h2>
-
 <div class="grid" id="cardGrid"></div>
 
-<!-- Overlay voor grote kaart en tekst -->
-<div id="overlay" onclick="closeOverlay()">
+<!-- Overlay grote kaart -->
+<div id="overlay">
   <img id="bigImage" src="">
   <p id="bigDesc"></p>
 </div>
 
-<!-- Beschrijvingen -->
+<!-- Beschrijvingen (verborgen) -->
 <div id="descriptions" style="display: none;">
-  <p id="desc1">De Terp<br>Een permanente bescherming tegen het water...</p>
-  <p id="desc2">De Polder<br>Kwetsbare bescherming tegen het water...</p>
-  <p id="desc3">Het Windmolengemaal<br>Houdt de Polder droog...</p>
-  <p id="desc4">De Brug<br>Vaste verbinding over water...</p>
-  <p id="desc5">Boot van hout<br>Flexibele verplaatsing over water...</p>
-  <p id="desc6">Rubberboot<br>Beperkte verplaatsing over water...</p>
-  <p id="desc7">Lieslaarzen<br>Beperkte verplaatsing over water...</p>
-  <p id="desc8">Reddingsboei<br>Bescherming tegen verdrinking...</p>
-  <p id="desc9">Gevangen in Drijfzand<br>Sla twee beurten over...</p>
-  <p id="desc10">De Zeehond<br>Verslaat iedere speler zonder HRVDS kaart...</p>
-  <p id="desc11">De Orka<br>Verslaat de Zeehond...</p>
-  <p id="desc12">De Walvis<br>Verslaat Orka en Zeehond...</p>
+  <p id="desc1">De Terp<br>Een permanente bescherming tegen <br>het water.<br>Te plaatsen op een landcel zonder pion.
+  <br>Alternatief,<br>Verplaats een pion naar keuze<br>3 stappen over land.</p>
+  <p id="desc2">De Polder<br>Kwetsbare bescherming tegen het<br>water. Onder water d.m.v. dobbelen<br>en Natuurramp.<br>Te plaatsen op een watercel.
+  <br>Alternatief,<br>Verplaats een pion naar keuze<br>3 stappen over land.</p>
+  <p id="desc3">Het Windmolengemaal<br>Houdt de Polder droog.<br>Verwoesting door Bijl en Natuurramp.<br>Te plaatsen in een Polder.
+  <br>Alternatief,<br>Verplaats een pion naar keuze<br>3 stappen over land.</p>
+  <p id="desc4">De Brug<br>Vaste verbinding over water.<br>Verwoesting door Bijl en Natuurramp.<br>Te plaatsen op een watercel.
+  <br>Alternatief,<br>Verplaats een pion naar keuze<br>3 stappen over land.</p>
+  <p id="desc5">Boot van hout<br>Flexibele verplaatsing over water.<br>Verwoesting door Bijl en Natuurramp.<br>Te plaatsen op een watercel.
+  <br>Maximaal 1 boot kaart op hand.<br>Alternatief,<br>Verplaats een pion naar keuze<br>3 stappen over land.</p>
+  <p id="desc6">Rubberboot<br>Beperkte verplaatsing over water.<br>Maximaal 2 water- en 1 landcel.<br>Eenmalig gebruik.
+  <br>Maximaal 1 boot kaart op hand.<br>Alternatief,<br>Verplaats een pion naar keuze<br>2 stappen over land.</p>
+   <p id="desc7">Lieslaarzen<br>Beperkte verplaatsing over water.<br>Verplaatsing van watercel naar<br>aangrenzende landcel.<br>Eenmalig gebruik.
+  <br>Geen verplaatsing naar een boot.<br>Alternatief,<br>Verplaats een pion naar keuze<br>2 stappen over land.</p>
+  <p id="desc8">Reddingsboei<br>Bescherming tegen verdrinking.<br>Verplaatsing van watercel naar<br>aangrenzende landcel.<br>Eenmalig gebruik.
+  <br>Geen verplaatsing naar een boot.<br>Alternatief,<br>Verplaats een pion naar keuze<br>2 stappen over land.</p>
+  <p id="desc9">Gevangen in Drijfzand<br>Sla twee beurten over.<br>Opdracht vervalt als speler<br>in bezit komt van kaart G.</p>
+    <p id="desc10">De Zeehond<br>Verslaat iedere speler zonder<br>een HRVDS kaart.<br>Indien beide een Zeehond hebben,<br>beslist de gele dobbelsteen.<br>Indien onbeslist,<br>Vervalt de beurt en lever kaart in.<br>Alternatief:<br>Verplaats over 3 land- of 2 watercellen<br>of een mix.3e stap is landcel.</p>
+  <p id="desc11">De Orka<br>Verslaat de Zeehond en iedere<br>speler zonder een HRVDS kaart.<br>Indien beide een Orka hebben,<br>beslist de gele dobbelsteen.<br>Indien onbeslist,<br>Vervalt de beurt en lever kaart in.<br>Alternatief:<br>Verplaats pion over 2 watercellen<br>3e stap is landcel.</p>
+  <p id="desc12">De Walvis<br>Verslaat Orka en Zeehond en iedere<br>speler zonder een HRVDS kaart.<br>Indien beide een Walvis hebben,<br>beslist de gele dobbelsteen.<br>Indien onbeslist,<br>Vervalt de beurt en lever kaart in.<br>Alternatief:<br>Verplaats pion over 3 watercellen<br>4e stap is landcel.</p>
 </div>
+
+<p class="instruction">
+Klik op <strong>+</strong> om een kaart toe te voegen, <strong>-</strong> om een kaart af te voeren.<br>
+Klik op een kaart met waarde > 0 om de grote kaart + beschrijving te zien.<br>
+Klik op de grote kaart om terug te gaan naar mini’s.
+</p>
 
 <script>
 const grid = document.getElementById("cardGrid");
@@ -97,81 +141,86 @@ const overlay = document.getElementById("overlay");
 const bigImage = document.getElementById("bigImage");
 const bigDesc = document.getElementById("bigDesc");
 
-// Maak 12 kaarten
-for (let i = 1; i <= 12; i++) {
+for(let i=1;i<=12;i++){
   const card = document.createElement("div");
-  card.className = "card";
-  card.dataset.index = i;
-  card.dataset.count = 0;
+  card.className="card";
+  card.dataset.index=i;
+  card.dataset.count=0;
+  
+  const img=document.createElement("img");
+  img.src=`thumb${i}.gif`;
+  img.style.opacity=0.3;
+  
+  const countDiv=document.createElement("div");
+  countDiv.className="count";
+  countDiv.textContent="0";
 
-  const img = document.createElement("img");
-  img.src = `thumb${i}.gif`;
-  img.style.opacity = 0.7; // begin altijd transparant
-
-  const count = document.createElement("div");
-  count.className = "count";
-  count.textContent = "0";
-
+  // Knoppen + en -
+  const btnDiv = document.createElement("div");
+  btnDiv.className="buttons";
+  const plusBtn=document.createElement("button");
+  plusBtn.textContent="+";
+  const minusBtn=document.createElement("button");
+  minusBtn.textContent="-";
+  btnDiv.appendChild(plusBtn);
+  btnDiv.appendChild(minusBtn);
+  
   card.appendChild(img);
-  card.appendChild(count);
+  card.appendChild(countDiv);
+  card.appendChild(btnDiv);
   grid.appendChild(card);
 
-  let startX = 0;
-  let isDown = false;
-
-  // Touch events
-  card.addEventListener("touchstart", e => startX = e.touches[0].clientX);
-  card.addEventListener("touchend", e => {
-    let deltaX = e.changedTouches[0].clientX - startX;
-    handleSwipe(card, deltaX);
+  // + knop
+  plusBtn.addEventListener("click", ()=>{
+    card.dataset.count=parseInt(card.dataset.count)+1;
+    countDiv.textContent=card.dataset.count;
+    img.style.opacity=1;
   });
 
-  // Muis events (voor pc/laptop)
-  card.addEventListener("mousedown", e => {
-    startX = e.clientX;
-    isDown = true;
-  });
-  card.addEventListener("mouseup", e => {
-    if (isDown) {
-      let deltaX = e.clientX - startX;
-      handleSwipe(card, deltaX);
-      isDown = false;
-    }
+  // - knop
+  minusBtn.addEventListener("click", ()=>{
+    let count=parseInt(card.dataset.count);
+    count = Math.max(0,count-1);
+    card.dataset.count=count;
+    countDiv.textContent=count;
+    img.style.opacity=count>0?1:0.7;
   });
 
-  // Dubbelklik om te vergroten
-  card.addEventListener("dblclick", () => {
-    if (parseInt(card.dataset.count) > 0) {
+  // Linksklik op kaart >0 -> overlay
+  card.addEventListener("click", e=>{
+    if(e.target.tagName.toLowerCase()!=="button" && parseInt(card.dataset.count)>0){
       showOverlay(card.dataset.index);
     }
   });
+
+  // Mobiel swipe
+  let startX=0;
+  card.addEventListener("touchstart", e=> startX=e.touches[0].clientX);
+  card.addEventListener("touchend", e=>{
+    const deltaX = e.changedTouches[0].clientX - startX;
+    handleSwipe(card, deltaX);
+  });
 }
 
-function handleSwipe(card, deltaX) {
-  const threshold = 30; // min. afstand in px
-  let count = parseInt(card.dataset.count);
-  const img = card.querySelector("img");
-  const countDiv = card.querySelector(".count");
+// Klik op overlay -> terug
+overlay.addEventListener("click", ()=>{ overlay.style.display="none"; });
 
-  if (deltaX > threshold) { // swipe rechts
-    count++;
-  } else if (deltaX < -threshold) { // swipe links
-    count = Math.max(0, count - 1);
-  }
-
-  card.dataset.count = count;
-  countDiv.textContent = count;
-  img.style.opacity = count > 0 ? 1 : 0.7;
+function handleSwipe(card, deltaX){
+  const threshold=30;
+  let count=parseInt(card.dataset.count);
+  const img=card.querySelector("img");
+  const countDiv=card.querySelector(".count");
+  if(deltaX>threshold) count++;
+  else if(deltaX<-threshold) count=Math.max(0,count-1);
+  card.dataset.count=count;
+  countDiv.textContent=count;
+  img.style.opacity=count>0?1:0.7;
 }
 
-function showOverlay(index) {
-  bigImage.src = `thumb${index}.gif`;
-  bigDesc.innerHTML = document.getElementById("desc" + index).innerHTML;
-  overlay.style.display = "flex";
-}
-
-function closeOverlay() {
-  overlay.style.display = "none";
+function showOverlay(index){
+  bigImage.src=`thumb${index}.gif`;
+  bigDesc.innerHTML=document.getElementById("desc"+index).innerHTML;
+  overlay.style.display="flex";
 }
 </script>
 
