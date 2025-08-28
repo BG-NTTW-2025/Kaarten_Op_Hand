@@ -16,8 +16,8 @@ h2 { margin-bottom: 15px; }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(4, auto);
-  gap: 10px;
+  grid-template-columns: repeat(4, auto); /* altijd 4 per rij */
+  gap: 8px;
   justify-content: center;
   max-width: 380px;
   margin: 0 auto 20px auto;
@@ -30,8 +30,8 @@ h2 { margin-bottom: 15px; }
 }
 
 .card img {
-  width: 75px;
-  height: 113px;
+  width: 70px;
+  height: 105px;
   opacity: 0.7;
   transition: opacity 0.3s;
   border-radius: 6px;
@@ -83,11 +83,6 @@ button {
   text-align:left;
 }
 
-@media(max-width:500px){
-  .grid { grid-template-columns: repeat(3, auto); max-width:240px; }
-  .card img { width:60px; height:90px; }
-}
-
 .instruction {
   margin-top: 20px;
   font-weight: bold;
@@ -98,13 +93,19 @@ button {
 
 <h2>Jouw Handkaarten</h2>
 <div class="grid" id="cardGrid"></div>
-
+<p class="instruction">
+Klik op <strong>+</strong> om een kaart toe te voegen, <strong>-</strong> om een kaart af te voeren.<br>
+Klik op een kaart met waarde > 0 om de grote kaart + beschrijving te zien.<br>
+Klik op de grote kaart om terug te gaan naar mini’s.
+</p>
 <!-- Overlay grote kaart -->
 <div id="overlay">
   <img id="bigImage" src="">
   <p id="bigDesc"></p>
 </div>
 
+<!-- Beschrijvingen (verborgen) -->
+<div id="descriptions" style="display: none;">
 <!-- Beschrijvingen (verborgen) -->
 <div id="descriptions" style="display: none;">
   <p id="desc1">De Terp<br>Een permanente bescherming tegen <br>het water.<br>Te plaatsen op een landcel zonder pion.
@@ -129,11 +130,6 @@ button {
   <p id="desc12">De Walvis<br>Verslaat Orka en Zeehond en iedere<br>speler zonder een HRVDS kaart.<br>Indien beide een Walvis hebben,<br>beslist de gele dobbelsteen.<br>Indien onbeslist,<br>Vervalt de beurt en lever kaart in.<br>Alternatief:<br>Verplaats pion over 3 watercellen<br>4e stap is landcel.</p>
 </div>
 
-<p class="instruction">
-Klik op <strong>+</strong> om een kaart toe te voegen, <strong>-</strong> om een kaart af te voeren.<br>
-Klik op een kaart met waarde > 0 om de grote kaart + beschrijving te zien.<br>
-Klik op de grote kaart om terug te gaan naar mini’s.
-</p>
 
 <script>
 const grid = document.getElementById("cardGrid");
@@ -141,19 +137,24 @@ const overlay = document.getElementById("overlay");
 const bigImage = document.getElementById("bigImage");
 const bigDesc = document.getElementById("bigDesc");
 
+// laad opgeslagen counts uit localStorage
+let counts = Array(12).fill(0);
+const saved = localStorage.getItem("counts");
+if (saved) counts = JSON.parse(saved);
+
 for(let i=1;i<=12;i++){
   const card = document.createElement("div");
   card.className="card";
   card.dataset.index=i;
-  card.dataset.count=0;
+  card.dataset.count=counts[i-1] || 0;
   
   const img=document.createElement("img");
   img.src=`thumb${i}.gif`;
-  img.style.opacity=0.3;
+  img.style.opacity=card.dataset.count>0?1:0.3;
   
   const countDiv=document.createElement("div");
   countDiv.className="count";
-  countDiv.textContent="0";
+  countDiv.textContent=card.dataset.count;
 
   // Knoppen + en -
   const btnDiv = document.createElement("div");
@@ -173,8 +174,7 @@ for(let i=1;i<=12;i++){
   // + knop
   plusBtn.addEventListener("click", ()=>{
     card.dataset.count=parseInt(card.dataset.count)+1;
-    countDiv.textContent=card.dataset.count;
-    img.style.opacity=1;
+    updateCard(card);
   });
 
   // - knop
@@ -182,8 +182,7 @@ for(let i=1;i<=12;i++){
     let count=parseInt(card.dataset.count);
     count = Math.max(0,count-1);
     card.dataset.count=count;
-    countDiv.textContent=count;
-    img.style.opacity=count>0?1:0.7;
+    updateCard(card);
   });
 
   // Linksklik op kaart >0 -> overlay
@@ -205,16 +204,24 @@ for(let i=1;i<=12;i++){
 // Klik op overlay -> terug
 overlay.addEventListener("click", ()=>{ overlay.style.display="none"; });
 
+function updateCard(card){
+  const idx = parseInt(card.dataset.index)-1;
+  const count=parseInt(card.dataset.count);
+  const img=card.querySelector("img");
+  const countDiv=card.querySelector(".count");
+  countDiv.textContent=count;
+  img.style.opacity=count>0?1:0.3;
+  counts[idx]=count;
+  localStorage.setItem("counts", JSON.stringify(counts)); // opslaan
+}
+
 function handleSwipe(card, deltaX){
   const threshold=30;
   let count=parseInt(card.dataset.count);
-  const img=card.querySelector("img");
-  const countDiv=card.querySelector(".count");
   if(deltaX>threshold) count++;
   else if(deltaX<-threshold) count=Math.max(0,count-1);
   card.dataset.count=count;
-  countDiv.textContent=count;
-  img.style.opacity=count>0?1:0.7;
+  updateCard(card);
 }
 
 function showOverlay(index){
